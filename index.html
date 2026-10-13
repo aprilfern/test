@@ -1,0 +1,47 @@
+<script src='https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js'></script>
+<script>
+  /* global paper */
+  let path
+  const points = 25
+  const segLength = 30
+
+  function setup () {
+    const canvas = document.createElement('canvas')
+    canvas.width = 600
+    canvas.height = 600
+    document.body.appendChild(canvas)
+
+    paper.setup(canvas)
+
+    path = new paper.Path({
+      strokeColor: 'red',
+      strokeWidth: 20,
+      strokeCap: 'round'
+    })
+
+    const start = paper.view.center.divide([10, 1])
+    for (let i = 0; i < points; i++) {
+      const seg = new paper.Point(i * segLength, 0)
+      const point = start.add(seg)
+      path.add(point)
+    }
+
+    paper.view.onMouseMove = update
+  }
+
+  function update (e) {
+    path.firstSegment.point = e.point
+
+    for (let i = 0; i < points - 1; i++) {
+      const seg = path.segments[i]
+      const nextSeg = seg.next
+      const vector = seg.point.subtract(nextSeg.point)
+      vector.length = segLength
+      nextSeg.point = seg.point.subtract(vector)
+    }
+
+    path.smooth({ type: 'continuous' })
+  }
+
+  window.addEventListener('load', setup)
+</script>
